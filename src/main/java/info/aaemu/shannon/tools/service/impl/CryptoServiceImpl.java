@@ -18,10 +18,39 @@ public class CryptoServiceImpl implements CryptoService {
     @Override
     public void decrypt(String fileName, String key) {
         validateParams(fileName, key);
-        String encryptionKeyString = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY).replaceAll("\\s+", "");
-        validateEncryptionKey(encryptionKeyString);
+        byte[] encryptionKey = getKey(key);
         byte[] encryptedData = fileManagerService.readFile(fileName);
-        byte[] encryptionKey = DatatypeConverter.parseHexBinary(encryptionKeyString);
+        byte[] decryptedData = decryptData(encryptedData, encryptionKey);
+        writeData(decryptedData, PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME));
+    }
+
+    @Override
+    public void encrypt(String fileName, String key) {
+        validateParams(fileName, key);
+        byte[] encryptionKey = getKey(key);
+        byte[] decryptedData = fileManagerService.readFile(fileName);
+        byte[] encryptedData = encryptData(decryptedData, encryptionKey);
+        writeData(encryptedData, PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_NEW_NAME));
+    }
+
+    private byte[] getKey(String key) {
+        String encryptionKeyFromProperty = key.replaceAll("\\s+", "");
+        validateEncryptionKeyFromProperty(encryptionKeyFromProperty);
+        return DatatypeConverter.parseHexBinary(encryptionKeyFromProperty);
+    }
+
+    private byte[] decryptData(byte[] encryptedData, byte[] encryptionKey) {
+        aesService.setKey(encryptionKey);
+        return aesService.decrypt(encryptedData);
+    }
+
+    private byte[] encryptData(byte[] decryptedData, byte[] encryptionKey) {
+        aesService.setKey(encryptionKey);
+        return aesService.encrypt(decryptedData);
+    }
+
+    private void writeData(byte[] decryptedData, String fileName) {
+        fileManagerService.writeFile(decryptedData, fileName);
     }
 
     private void validateParams(String fileName, String key) {
@@ -30,8 +59,8 @@ public class CryptoServiceImpl implements CryptoService {
         }
     }
 
-    private void validateEncryptionKey(String encryptionKeyString) {
-        if (16 > encryptionKeyString.length()) {
+    private void validateEncryptionKeyFromProperty(String encryptionKeyFromProperty) {
+        if (16 > encryptionKeyFromProperty.length()) {
             throw new BadPropertyValue("Invalid encryption key length");
         }
     }
