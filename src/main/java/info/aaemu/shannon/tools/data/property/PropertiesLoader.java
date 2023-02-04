@@ -12,6 +12,7 @@ import java.util.Properties;
 public enum PropertiesLoader {
     INSTANCE;
 
+    public static final String APP_VERSION = "app.version";
     public static final String USER_DIRECTORY_NAME = "user.dir";
     public static final String GAME_NAME = "game.name";
     public static final String GAME_VERSION = "game.version";
