@@ -18,10 +18,25 @@ public class CryptoServiceImpl implements CryptoService {
     @Override
     public void decrypt(String fileName, String key) {
         validateParams(fileName, key);
-        String encryptionKeyString = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY).replaceAll("\\s+", "");
-        validateEncryptionKey(encryptionKeyString);
+        String encryptionKeyFromProperty = key.replaceAll("\\s+", "");
+        validateEncryptionKeyFromProperty(encryptionKeyFromProperty);
+        byte[] encryptionKey = getKey(encryptionKeyFromProperty);
         byte[] encryptedData = fileManagerService.readFile(fileName);
-        byte[] encryptionKey = DatatypeConverter.parseHexBinary(encryptionKeyString);
+        byte[] decryptedData = decrypt(encryptedData, encryptionKey);
+        writeDecryptedData(decryptedData);
+    }
+
+    private byte[] getKey(String key) {
+        return DatatypeConverter.parseHexBinary(key);
+    }
+
+    private byte[] decrypt(byte[] encryptedData, byte[] encryptionKey) {
+        aesService.setKey(encryptionKey);
+        return aesService.decrypt(encryptedData);
+    }
+
+    private void writeDecryptedData(byte[] decryptedData) {
+        fileManagerService.writeFile(decryptedData, PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME));
     }
 
     private void validateParams(String fileName, String key) {
@@ -30,8 +45,8 @@ public class CryptoServiceImpl implements CryptoService {
         }
     }
 
-    private void validateEncryptionKey(String encryptionKeyString) {
-        if (16 > encryptionKeyString.length()) {
+    private void validateEncryptionKeyFromProperty(String encryptionKeyFromProperty) {
+        if (16 > encryptionKeyFromProperty.length()) {
             throw new BadPropertyValue("Invalid encryption key length");
         }
     }

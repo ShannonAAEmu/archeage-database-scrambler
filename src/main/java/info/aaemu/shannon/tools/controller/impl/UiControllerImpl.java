@@ -19,6 +19,6 @@ public class UiControllerImpl implements UiController {
 
     @Override
     public void decryptDatabase() {
-        cryptoService.decrypt(PropertiesLoader.DATABASE_SOURCE_NAME, PropertiesLoader.ENCRYPTION_KEY);
+        cryptoService.decrypt(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_SOURCE_NAME), PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY));
     }
 }
