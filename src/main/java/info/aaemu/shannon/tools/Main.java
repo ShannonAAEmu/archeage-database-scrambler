@@ -13,6 +13,7 @@ public class Main {
         GameInfo gameInfo = getGameInfo();
         showGameInfo(gameInfo);
         decryptDatabase();
+        encryptDatabase();
     }
 
     private static GameInfo getGameInfo() {
@@ -25,5 +26,9 @@ public class Main {
 
     private static void decryptDatabase() {
         uiController.decryptDatabase();
+    }
+
+    private static void encryptDatabase() {
+        uiController.encryptDatabase();
     }
 }

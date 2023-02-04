@@ -18,25 +18,39 @@ public class CryptoServiceImpl implements CryptoService {
     @Override
     public void decrypt(String fileName, String key) {
         validateParams(fileName, key);
-        String encryptionKeyFromProperty = key.replaceAll("\\s+", "");
-        validateEncryptionKeyFromProperty(encryptionKeyFromProperty);
-        byte[] encryptionKey = getKey(encryptionKeyFromProperty);
+        byte[] encryptionKey = getKey(key);
         byte[] encryptedData = fileManagerService.readFile(fileName);
-        byte[] decryptedData = decrypt(encryptedData, encryptionKey);
-        writeDecryptedData(decryptedData);
+        byte[] decryptedData = decryptData(encryptedData, encryptionKey);
+        writeData(decryptedData, PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME));
+    }
+
+    @Override
+    public void encrypt(String fileName, String key) {
+        validateParams(fileName, key);
+        byte[] encryptionKey = getKey(key);
+        byte[] decryptedData = fileManagerService.readFile(fileName);
+        byte[] encryptedData = encryptData(decryptedData, encryptionKey);
+        writeData(encryptedData, PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_NEW_NAME));
     }
 
     private byte[] getKey(String key) {
-        return DatatypeConverter.parseHexBinary(key);
+        String encryptionKeyFromProperty = key.replaceAll("\\s+", "");
+        validateEncryptionKeyFromProperty(encryptionKeyFromProperty);
+        return DatatypeConverter.parseHexBinary(encryptionKeyFromProperty);
     }
 
-    private byte[] decrypt(byte[] encryptedData, byte[] encryptionKey) {
+    private byte[] decryptData(byte[] encryptedData, byte[] encryptionKey) {
         aesService.setKey(encryptionKey);
         return aesService.decrypt(encryptedData);
     }
 
-    private void writeDecryptedData(byte[] decryptedData) {
-        fileManagerService.writeFile(decryptedData, PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME));
+    private byte[] encryptData(byte[] decryptedData, byte[] encryptionKey) {
+        aesService.setKey(encryptionKey);
+        return aesService.encrypt(decryptedData);
+    }
+
+    private void writeData(byte[] decryptedData, String fileName) {
+        fileManagerService.writeFile(decryptedData, fileName);
     }
 
     private void validateParams(String fileName, String key) {

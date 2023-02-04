@@ -7,4 +7,6 @@ public interface UiController {
     GameInfo getGameInfo();
 
     void decryptDatabase();
+
+    void encryptDatabase();
 }

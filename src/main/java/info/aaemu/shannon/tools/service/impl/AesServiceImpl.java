@@ -24,7 +24,7 @@ public class AesServiceImpl implements AesService {
     public void setKey(byte[] key) {
         secretKey = new SecretKeySpec(key, AesService.ALGORITHM);
         try {
-            cipher = Cipher.getInstance(AesService.TRANSFORMATION_CBC);
+            cipher = Cipher.getInstance(AesService.TRANSFORMATION_CBC_NO_PADDING);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
             throw new ApplicationException(e);
         }
@@ -35,6 +35,17 @@ public class AesServiceImpl implements AesService {
         try {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(new byte[16]));
             return cipher.doFinal(encryptedData);
+        } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException |
+                 InvalidAlgorithmParameterException e) {
+            throw new ApplicationException(e);
+        }
+    }
+
+    @Override
+    public byte[] encrypt(byte[] decryptedData) {
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(new byte[16]));
+            return cipher.doFinal(decryptedData);
         } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException |
                  InvalidAlgorithmParameterException e) {
             throw new ApplicationException(e);
