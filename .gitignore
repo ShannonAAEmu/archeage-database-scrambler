@@ -11,7 +11,7 @@ target/
 *.iws
 *.iml
 *.ipr
-.idea/
+.idea
 
 ### Eclipse ###
 .apt_generated
@@ -39,4 +39,4 @@ build/
 .DS_Store
 
 ### Game files ###
-compact.sqlite3
+*.sqlite3
