@@ -3,6 +3,7 @@ package info.aaemu.shannon.tools.service.impl;
 import info.aaemu.shannon.tools.data.property.PropertiesLoader;
 import info.aaemu.shannon.tools.exception.ApplicationException;
 import info.aaemu.shannon.tools.exception.BadParameterException;
+import info.aaemu.shannon.tools.exception.NotFoundException;
 import info.aaemu.shannon.tools.service.FileManagerService;
 
 import java.io.IOException;
@@ -16,8 +17,18 @@ public class FileManagerServiceImpl implements FileManagerService {
     private final String rootFolder = System.getProperty(PropertiesLoader.USER_DIRECTORY_NAME);
 
     @Override
+    public boolean isAvailableFile(String name) {
+        validateName(name);
+        String filePath = rootFolder + FileSystems.getDefault().getSeparator() + name;
+        return Files.exists(Paths.get(filePath));
+    }
+
+    @Override
     public byte[] readFile(String name) {
         validateName(name);
+        if (!isAvailableFile(name)) {
+            throw new NotFoundException("File " + name + " not found");
+        }
         String filePath = rootFolder + FileSystems.getDefault().getSeparator() + name;
         try {
             return Files.readAllBytes(Paths.get(filePath));
@@ -28,9 +39,9 @@ public class FileManagerServiceImpl implements FileManagerService {
     }
 
     @Override
-    public void writeFile(byte[] data, String fileName) {
+    public void writeFile(byte[] data, String name) {
         validateData(data);
-        String filePathString = rootFolder + FileSystems.getDefault().getSeparator() + fileName;
+        String filePathString = rootFolder + FileSystems.getDefault().getSeparator() + name;
         Path filePath = Paths.get(filePathString);
         try {
             Files.deleteIfExists(filePath);

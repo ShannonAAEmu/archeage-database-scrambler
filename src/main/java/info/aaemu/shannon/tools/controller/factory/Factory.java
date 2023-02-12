@@ -21,7 +21,7 @@ public enum Factory {
         FileManagerService fileManagerService = new FileManagerServiceImpl();
         AesService aesService = new AesServiceImpl();
         CryptoService cryptoService = new CryptoServiceImpl(fileManagerService, aesService);
-        this.uiController = new UiControllerImpl(gameInfoService, cryptoService);
+        this.uiController = new UiControllerImpl(gameInfoService, fileManagerService, cryptoService);
     }
 
     public UiController getUiController() {
