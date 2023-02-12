@@ -13,6 +13,11 @@ public class UiControllerImpl implements UiController {
     private final CryptoService cryptoService;
 
     @Override
+    public void initConsole() {
+        showGameInfo();
+    }
+
+    @Override
     public GameInfo getGameInfo() {
         return gameInfoService.getGameInfo();
     }
@@ -25,5 +30,9 @@ public class UiControllerImpl implements UiController {
     @Override
     public void encryptDatabase() {
         cryptoService.encrypt(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME), PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY));
+    }
+
+    private void showGameInfo() {
+        System.out.println(getGameInfo());
     }
 }

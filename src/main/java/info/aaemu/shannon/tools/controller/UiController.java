@@ -4,6 +4,8 @@ import info.aaemu.shannon.tools.controller.entity.GameInfo;
 
 public interface UiController {
 
+    void initConsole();
+
     GameInfo getGameInfo();
 
     void decryptDatabase();

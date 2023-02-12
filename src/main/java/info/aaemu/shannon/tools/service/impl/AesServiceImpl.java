@@ -16,7 +16,6 @@ import java.security.NoSuchAlgorithmException;
 
 @RequiredArgsConstructor
 public class AesServiceImpl implements AesService {
-
     private SecretKeySpec secretKey;
     private Cipher cipher;
 
