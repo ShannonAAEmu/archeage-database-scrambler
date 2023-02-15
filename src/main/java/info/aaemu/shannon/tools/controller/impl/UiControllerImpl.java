@@ -13,22 +13,59 @@ import java.util.Scanner;
 
 @RequiredArgsConstructor
 public class UiControllerImpl implements UiController {
+    private final static byte DECRYPT_MODE = 1;
+    private final static byte ENCRYPT_MODE = 2;
     private final GameInfoService gameInfoService;
     private final FileManagerService fileManagerService;
     private final CryptoService cryptoService;
     private boolean canDecrypt;
     private boolean canEncrypt;
+    private Scanner scanner;
 
     @Override
-    public void initConsole() {
-        showGameInfo();
-        showActions();
-        selectAction(getMode());
+    public void showGameInfo() {
+        GameInfo gameInfo = getGameInfo();
+        print("Game: " + gameInfo.getName());
+        print("Version: " + gameInfo.getVersion());
+        print("Provider: " + gameInfo.getProvider());
+        print("");
     }
 
     @Override
-    public GameInfo getGameInfo() {
-        return gameInfoService.getGameInfo();
+    public void showCryptoMode() {
+        canDecrypt = isCanDecrypt();
+        if (canDecrypt) {
+            print("Select 1: Decrypt");
+        }
+        canEncrypt = isCanEncrypt();
+        if (canEncrypt) {
+            print("Select 2: Encrypt");
+        }
+        if (!canDecrypt && !canEncrypt) {
+            exit("Database(s) not found!");
+        }
+    }
+
+    @Override
+    public byte inputCryptoMode() {
+        try {
+            return getScanner().nextByte();
+        } catch (Exception e) {
+            throw new BadParameterException(e);
+        }
+    }
+
+    @Override
+    public void cryptoAction(byte cryptoMode) {
+        if (DECRYPT_MODE == cryptoMode && canDecrypt) {
+            print("Start decrypting...");
+            decryptDatabase();
+        } else if (ENCRYPT_MODE == cryptoMode && canEncrypt) {
+            print("Start encrypting...");
+            encryptDatabase();
+        } else {
+            exit("Invalid crypto mode!");
+        }
     }
 
     @Override
@@ -41,42 +78,33 @@ public class UiControllerImpl implements UiController {
         cryptoService.encrypt(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME), PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY));
     }
 
-    private void showGameInfo() {
-        System.out.println(getGameInfo());
+    private GameInfo getGameInfo() {
+        return gameInfoService.getGameInfo();
     }
 
-    private void showActions() {
-        canDecrypt = fileManagerService.isAvailableFile(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_SOURCE_NAME));
-        canEncrypt = fileManagerService.isAvailableFile(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME));
-        if (canDecrypt) {
-            System.out.println("Select 1: Decrypt");
-        }
-        if (canEncrypt) {
-            System.out.println("Select 2: Encrypt");
-        }
-        if (!canDecrypt && !canEncrypt) {
-            System.out.println("Databases not found");
-            System.exit(0);
-        }
+    private boolean isCanDecrypt() {
+        return fileManagerService.isAvailableFile(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_SOURCE_NAME));
     }
 
-    private byte getMode() {
-        Scanner scanner = new Scanner(System.in);
-        try {
-            return scanner.nextByte();
-        } catch (Exception e) {
-            throw new BadParameterException(e);
-        }
+    private boolean isCanEncrypt() {
+        return fileManagerService.isAvailableFile(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME));
     }
 
-    private void selectAction(byte mode) {
-        if (canDecrypt && 1 == mode) {
-            System.out.println("Start decrypting...");
-            decryptDatabase();
+    private Scanner getScanner() {
+        if (null == scanner) {
+            scanner = new Scanner(System.in);
         }
-        if (canEncrypt && 2 == mode) {
-            System.out.println("Start encrypting...");
-            encryptDatabase();
-        }
+        return scanner;
+    }
+
+    private void exit(String msg) {
+        print("\n" + msg);
+        print("\nEnter any key to exit...");
+        getScanner().next();
+        System.exit(0);
+    }
+
+    private void print(String s) {
+        System.out.println(s);
     }
 }

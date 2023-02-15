@@ -1,12 +1,14 @@
 package info.aaemu.shannon.tools.controller;
 
-import info.aaemu.shannon.tools.controller.entity.GameInfo;
-
 public interface UiController {
 
-    void initConsole();
+    void showGameInfo();
 
-    GameInfo getGameInfo();
+    void showCryptoMode();
+
+    byte inputCryptoMode();
+
+    void cryptoAction(byte cryptoMode);
 
     void decryptDatabase();
 
