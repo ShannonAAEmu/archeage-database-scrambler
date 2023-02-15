@@ -3,6 +3,7 @@ package info.aaemu.shannon.tools.controller.impl;
 import info.aaemu.shannon.tools.controller.UiController;
 import info.aaemu.shannon.tools.controller.entity.GameInfo;
 import info.aaemu.shannon.tools.data.property.PropertiesLoader;
+import info.aaemu.shannon.tools.exception.ApplicationException;
 import info.aaemu.shannon.tools.exception.BadParameterException;
 import info.aaemu.shannon.tools.service.CryptoService;
 import info.aaemu.shannon.tools.service.FileManagerService;
@@ -13,8 +14,8 @@ import java.util.Scanner;
 
 @RequiredArgsConstructor
 public class UiControllerImpl implements UiController {
-    private final static byte DECRYPT_MODE = 1;
-    private final static byte ENCRYPT_MODE = 2;
+    private static final byte DECRYPT_MODE = 1;
+    private static final byte ENCRYPT_MODE = 2;
     private final GameInfoService gameInfoService;
     private final FileManagerService fileManagerService;
     private final CryptoService cryptoService;
@@ -57,25 +58,35 @@ public class UiControllerImpl implements UiController {
 
     @Override
     public void cryptoAction(byte cryptoMode) {
-        if (DECRYPT_MODE == cryptoMode && canDecrypt) {
-            print("Start decrypting...");
-            decryptDatabase();
-        } else if (ENCRYPT_MODE == cryptoMode && canEncrypt) {
-            print("Start encrypting...");
-            encryptDatabase();
-        } else {
-            exit("Invalid crypto mode!");
+        try {
+            if (DECRYPT_MODE == cryptoMode && canDecrypt) {
+                print("Start decrypting...");
+                decryptDatabase();
+            } else if (ENCRYPT_MODE == cryptoMode && canEncrypt) {
+                print("Start encrypting...");
+                encryptDatabase();
+            } else {
+                exit("Invalid crypto mode!");
+            }
+        } catch (ApplicationException e) {
+            exit("Invalid application.properties file!");
         }
     }
 
     @Override
     public void decryptDatabase() {
-        cryptoService.decrypt(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_SOURCE_NAME), PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY));
+        String fileName = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_SOURCE_NAME);
+        cryptoService.decrypt(fileName, getKey());
     }
 
     @Override
     public void encryptDatabase() {
-        cryptoService.encrypt(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME), PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY));
+        String fileName = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME);
+        cryptoService.encrypt(fileName, getKey());
+    }
+
+    private void print(String s) {
+        System.out.println(s);
     }
 
     private GameInfo getGameInfo() {
@@ -97,14 +108,14 @@ public class UiControllerImpl implements UiController {
         return scanner;
     }
 
+    private String getKey() {
+        return PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY);
+    }
+
     private void exit(String msg) {
         print("\n" + msg);
         print("\nEnter any key to exit...");
         getScanner().next();
         System.exit(0);
-    }
-
-    private void print(String s) {
-        System.out.println(s);
     }
 }
