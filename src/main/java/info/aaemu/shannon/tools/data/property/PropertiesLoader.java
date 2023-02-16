@@ -20,7 +20,7 @@ public enum PropertiesLoader {
     public static final String DATABASE_SOURCE_NAME = "database.source.name";
     public static final String DATABASE_TARGET_NAME = "database.target.name";
     public static final String DATABASE_NEW_NAME = "database.new.name";
-    public static final String ENCRYPTION_KEY = "encryption.key";
+    public static final String ENCRYPTION_KEY = "encryption.key.hex";
     public static final String ENCRYPTION_KEY_RAW = "encryption.key.raw";
     private static final String PROPERTIES_NAME = "application.properties";
     private final Properties properties;
