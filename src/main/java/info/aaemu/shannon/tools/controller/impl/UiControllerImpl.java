@@ -1,6 +1,7 @@
 package info.aaemu.shannon.tools.controller.impl;
 
 import info.aaemu.shannon.tools.controller.UiController;
+import info.aaemu.shannon.tools.controller.entity.EncryptionKey;
 import info.aaemu.shannon.tools.controller.entity.GameInfo;
 import info.aaemu.shannon.tools.data.property.PropertiesLoader;
 import info.aaemu.shannon.tools.exception.ApplicationException;
@@ -75,14 +76,34 @@ public class UiControllerImpl implements UiController {
 
     @Override
     public void decryptDatabase() {
-        String fileName = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_SOURCE_NAME);
-        cryptoService.decrypt(fileName, getKey());
+        String fileName = getFileName(PropertiesLoader.DATABASE_SOURCE_NAME);
+        byte appVersion = getAppVersion();
+        if (appVersion == CryptoService.APP_VERSION_ONE) {
+            String key = getKey();
+            cryptoService.decrypt(fileName, key);
+        }
+        if (appVersion == CryptoService.APP_VERSION_TWO) {
+            EncryptionKey encryptionKey = getEncryptionKey();
+            cryptoService.decryptNew(fileName, encryptionKey);
+        } else {
+            throw new ApplicationException("Unknown app version!");
+        }
     }
 
     @Override
     public void encryptDatabase() {
-        String fileName = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.DATABASE_TARGET_NAME);
-        cryptoService.encrypt(fileName, getKey());
+        String fileName = getFileName(PropertiesLoader.DATABASE_TARGET_NAME);
+        byte appVersion = getAppVersion();
+        if (appVersion == CryptoService.APP_VERSION_ONE) {
+            String key = getKey();
+            cryptoService.encrypt(fileName, key);
+        }
+        if (appVersion == CryptoService.APP_VERSION_TWO) {
+            EncryptionKey encryptionKey = getEncryptionKey();
+            cryptoService.encryptNew(fileName, encryptionKey);
+        } else {
+            throw new ApplicationException("Unknown app version!");
+        }
     }
 
     private void print(String s) {
@@ -109,7 +130,33 @@ public class UiControllerImpl implements UiController {
     }
 
     private String getKey() {
-        return PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY);
+        String key;
+        byte appVersion = Byte.parseByte(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.APP_VERSION));
+        if (CryptoService.APP_VERSION_ONE == appVersion) {
+            key = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY);
+        } else if (CryptoService.APP_VERSION_TWO == appVersion) {
+            key = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY_NEW_ROUND_ONE_AES);
+        } else {
+            throw new ApplicationException("Property file don't contain encryption key!");
+        }
+        return key;
+    }
+
+    private String getFileName(String key) {
+        return PropertiesLoader.INSTANCE.getKey(key);
+    }
+
+    private byte getAppVersion() {
+        return Byte.parseByte(PropertiesLoader.INSTANCE.getKey(PropertiesLoader.APP_VERSION));
+    }
+
+    private EncryptionKey getEncryptionKey() {
+        EncryptionKey encryptionKey = new EncryptionKey(new String[2], new String[2]);
+        encryptionKey.getAesKeyArray()[0] = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY_NEW_ROUND_ONE_AES);
+        encryptionKey.getAesKeyArray()[1] = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY_NEW_ROUND_TWO_AES);
+        encryptionKey.getXorKeyArray()[0] = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY_NEW_ROUND_ONE_XOR);
+        encryptionKey.getXorKeyArray()[1] = PropertiesLoader.INSTANCE.getKey(PropertiesLoader.ENCRYPTION_KEY_NEW_ROUND_TWO_XOR);
+        return encryptionKey;
     }
 
     private void exit(String msg) {

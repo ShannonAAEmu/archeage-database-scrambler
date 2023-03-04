@@ -22,6 +22,10 @@ public enum PropertiesLoader {
     public static final String DATABASE_NEW_NAME = "database.new.name";
     public static final String ENCRYPTION_KEY = "encryption.key.hex";
     public static final String ENCRYPTION_KEY_RAW = "encryption.key.raw";
+    public static final String ENCRYPTION_KEY_NEW_ROUND_ONE_AES = "encryption.key.hex.round.one.aes";
+    public static final String ENCRYPTION_KEY_NEW_ROUND_TWO_AES = "encryption.key.hex.round.two.aes";
+    public static final String ENCRYPTION_KEY_NEW_ROUND_ONE_XOR = "encryption.key.hex.round.one.xor";
+    public static final String ENCRYPTION_KEY_NEW_ROUND_TWO_XOR = "encryption.key.hex.round.two.xor";
     private static final String PROPERTIES_NAME = "application.properties";
     private final Properties properties;
 
