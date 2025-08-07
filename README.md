@@ -18,12 +18,7 @@
 	   Setup, help & support, FAQs<br>
    </h2>
    <h4>
-    <ol>
-     <li>Drop "application.properties" to application folder</li>
-     <li>Launch</li>
-     <li>Select crypto mode</li>
-    </ol>
-	   Required Java 17+
+	   Required Java 21+
    </h4>
  </div>
  </div>
