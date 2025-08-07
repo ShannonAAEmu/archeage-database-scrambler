@@ -1,17 +1,17 @@
 package info.aaemu.shannon.tools.service;
 
-import info.aaemu.shannon.tools.controller.entity.EncryptionKey;
-
+/**
+ * @author Shannon
+ */
 public interface CryptoService {
 
-    byte APP_VERSION_ONE = 1;
-    byte APP_VERSION_TWO = 2;
+    String buildKey(String key);
 
-    void decrypt(String fileName, String key);
+    void decryptType_1(String key);
 
-    void encrypt(String fileName, String key);
+    void encryptType_1(String key);
 
-    void decryptNew(String fileName, EncryptionKey encryptionKey);
+    void decryptType_2(String rawAesKey_1, String rawXorKey_1, String rawAesKey_2, String rawXorKey_2);
 
-    void encryptNew(String fileName, EncryptionKey encryptionKey);
+    void encryptType_2(String rawAesKey_1, String rawXorKey_1, String rawAesKey_2, String rawXorKey_2);
 }
