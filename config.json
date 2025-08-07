@@ -1,0 +1,15 @@
+{
+  "provider": "Trion",
+  "version": "2.0.1.7",
+  "constants": [
+    "00000000",
+    "11111111",
+    "22222222",
+    "33333333"
+  ],
+  "aes_key_sizes": [
+    128,
+    256
+  ],
+  "crypto_mode": "DECRYPT"
+}
