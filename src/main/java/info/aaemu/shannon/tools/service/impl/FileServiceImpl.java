@@ -9,7 +9,6 @@ import java.nio.file.StandardOpenOption;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import info.aaemu.shannon.tools.service.FileService;
 import lombok.SneakyThrows;
 
@@ -57,14 +56,6 @@ public class FileServiceImpl implements FileService {
         byte[] bytes = read("config.json");
 
         return objectMapper.readValue(bytes, clazz);
-    }
-
-    @SneakyThrows
-    @Override
-    public void writeJson(ObjectNode json) {
-        String strJson = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
-
-        write(strJson.getBytes(), "config.json");
     }
 
     private Path fileNameToPath(String name) {

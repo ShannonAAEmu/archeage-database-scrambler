@@ -1,7 +1,5 @@
 package info.aaemu.shannon.tools.service;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 /**
  * @author Shannon
  */
@@ -14,6 +12,4 @@ public interface FileService {
     String readConfigVersion();
 
     <T> T readConfig(Class<T> clazz);
-
-    void writeJson(ObjectNode json);
 }
